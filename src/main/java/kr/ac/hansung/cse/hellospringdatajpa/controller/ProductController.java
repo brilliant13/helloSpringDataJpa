@@ -83,9 +83,9 @@ public class ProductController {
             }
 
             // 중복 상품명 검증 (선택사항)
-            if (isDuplicateProductName(product)) {
-                throw new IllegalArgumentException("동일한 상품명이 이미 존재합니다.");
-            }
+//            if (isDuplicateProductName(product)) {
+//                throw new IllegalArgumentException("동일한 상품명이 이미 존재합니다.");
+//            }
 
             service.save(product);
             redirectAttributes.addFlashAttribute("successMessage", "상품이 성공적으로 저장되었습니다.");
