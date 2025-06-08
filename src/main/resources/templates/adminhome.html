@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{common :: commonHead}">
+    <title>관리자 대시보드 - Product Manager</title>
+</head>
+
+<body>
+<div class="container">
+    <!-- 네비게이션 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mt-3 mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/products">
+                <i class="bi bi-box-seam"></i> Product Manager
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3 text-warning">
+                    <i class="bi bi-shield-fill-check"></i>
+                    관리자: <span sec:authentication="principal.username" class="fw-bold"></span>님
+                </span>
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-right"></i> 로그아웃
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 환영 메시지 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h1 class="card-title">
+                        <i class="bi bi-person-badge"></i> 관리자 대시보드
+                    </h1>
+                    <p class="card-text fs-5">
+                        환영합니다, <span sec:authentication="principal.username" class="fw-bold"></span>님!
+                    </p>
+                    <p class="card-text">
+                        Product Manager 시스템의 모든 관리 기능에 접근할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 관리 기능 카드들 -->
+    <div class="row g-4 mb-5">
+        <!-- 상품 관리 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-primary">
+                <div class="card-header bg-primary text-white text-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-box"></i> 상품 관리
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <p class="card-text">상품 등록, 수정, 삭제 및 목록 관리</p>
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/products}" class="btn btn-primary">
+                            <i class="bi bi-list-ul"></i> 상품 목록
+                        </a>
+                        <a th:href="@{/products/new}" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle"></i> 새 상품 등록
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 사용자 관리 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-success">
+                <div class="card-header bg-success text-white text-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-people"></i> 사용자 관리
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <p class="card-text">전체 사용자 목록 및 권한 확인</p>
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/admin/users}" class="btn btn-success">
+                            <i class="bi bi-person-lines-fill"></i> 사용자 목록
+                        </a>
+                        <a th:href="@{/signup}" class="btn btn-outline-success">
+                            <i class="bi bi-person-plus"></i> 사용자 등록
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 시스템 정보 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-info">
+                <div class="card-header bg-info text-white text-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-gear"></i> 시스템 정보
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <p class="card-text">시스템 상태 및 설정 정보</p>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-info" onclick="showSystemInfo()">
+                            <i class="bi bi-info-circle"></i> 시스템 정보
+                        </button>
+                        <a href="/h2-console" target="_blank" class="btn btn-outline-info">
+                            <i class="bi bi-database"></i> 데이터베이스
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 권한 정보 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-shield-check"></i> 관리자 권한 정보
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-success">
+                                <i class="bi bi-check-circle-fill"></i> 허용된 작업
+                            </h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-dot"></i> 모든 상품 조회</li>
+                                <li><i class="bi bi-dot"></i> 상품 등록/수정/삭제</li>
+                                <li><i class="bi bi-dot"></i> 사용자 목록 확인</li>
+                                <li><i class="bi bi-dot"></i> 관리자 페이지 접근</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">
+                                <i class="bi bi-person-badge"></i> 현재 권한
+                            </h6>
+                            <div sec:authorize="isAuthenticated()">
+                                <div th:each="authority : ${#authentication.authorities}">
+                                    <span class="badge bg-primary me-1" th:text="${authority.getAuthority()}">권한</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 빠른 액션 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-lightning"></i> 빠른 액션
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a th:href="@{/products/new}" class="btn btn-success btn-sm">
+                            <i class="bi bi-plus"></i> 상품 등록
+                        </a>
+                        <a th:href="@{/products}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-list"></i> 상품 목록
+                        </a>
+                        <a th:href="@{/admin/users}" class="btn btn-info btn-sm">
+                            <i class="bi bi-people"></i> 사용자 관리
+                        </a>
+                        <button class="btn btn-warning btn-sm" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise"></i> 새로고침
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 시스템 정보 모달 -->
+<div class="modal fade" id="systemInfoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-info-circle"></i> 시스템 정보
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-sm">
+                    <tr>
+                        <th>애플리케이션</th>
+                        <td>Product Manager</td>
+                    </tr>
+                    <tr>
+                        <th>버전</th>
+                        <td>v1.0.0</td>
+                    </tr>
+                    <tr>
+                        <th>프레임워크</th>
+                        <td>Spring Boot 3.4.6</td>
+                    </tr>
+                    <tr>
+                        <th>보안</th>
+                        <td>Spring Security</td>
+                    </tr>
+                    <tr>
+                        <th>데이터베이스</th>
+                        <td>MySQL</td>
+                    </tr>
+                    <tr>
+                        <th>템플릿 엔진</th>
+                        <td>Thymeleaf</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showSystemInfo() {
+        var modal = new bootstrap.Modal(document.getElementById('systemInfoModal'));
+        modal.show();
+    }
+</script>
+
+<div th:replace="~{common :: commonScript}"></div>
+</body>
+</html>

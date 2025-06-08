@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+
+<head th:insert="~{common :: commonHead}">
+    <title>Product Manager</title>
+</head>
+
+<body>
+<div class="container">
+    <!-- 네비게이션 바 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mt-3 mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/products">
+                <i class="bi bi-box-seam"></i> Product Manager
+            </a>
+
+            <div class="navbar-nav ms-auto">
+                <!-- 인증된 사용자 메뉴 -->
+                <div sec:authorize="isAuthenticated()">
+                    <span class="navbar-text me-3">
+                        환영합니다, <span sec:authentication="principal.username" class="fw-bold"></span>님!
+                        <span sec:authorize="hasRole('ADMIN')" class="badge bg-danger ms-1">관리자</span>
+                        <span sec:authorize="hasRole('USER') and !hasRole('ADMIN')" class="badge bg-primary ms-1">사용자</span>
+                    </span>
+
+                    <!-- ADMIN 전용 메뉴 -->
+                    <div sec:authorize="hasRole('ADMIN')" class="d-inline">
+                        <a class="btn btn-outline-primary btn-sm me-2" th:href="@{/admin/users}">사용자 관리</a>
+                        <a class="btn btn-outline-secondary btn-sm me-2" th:href="@{/admin/home}">관리자 홈</a>
+                    </div>
+
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">로그아웃</button>
+                    </form>
+                </div>
+
+                <!-- 익명 사용자 메뉴 -->
+                <div sec:authorize="isAnonymous()">
+                    <a class="btn btn-primary btn-sm me-2" th:href="@{/login}">로그인</a>
+                    <a class="btn btn-outline-primary btn-sm" th:href="@{/signup}">회원가입</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메시지 표시 -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- 🆕 로그인 성공 메시지 추가 (여기에!) -->
+    <div th:if="${param.loginSuccess}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i>
+        <strong>로그인 성공!</strong> 환영합니다! Product Manager에 성공적으로 로그인하셨습니다.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- 페이지 제목 및 권한별 버튼 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-primary">
+            <i class="bi bi-list"></i> Product List
+        </h1>
+
+        <!-- ADMIN만 상품 등록 버튼 표시 -->
+        <div sec:authorize="hasRole('ADMIN')">
+            <a class="btn btn-success" th:href="@{/products/new}">
+                <i class="bi bi-plus-circle"></i> Create New Product
+            </a>
+        </div>
+
+        <!-- 일반 사용자에게는 등록 불가 안내 -->
+        <div sec:authorize="hasRole('USER') and !hasRole('ADMIN')">
+            <button class="btn btn-secondary" disabled>
+                <i class="bi bi-lock"></i> 관리자 권한 필요
+            </button>
+        </div>
+    </div>
+
+    <!-- 권한별 안내 메시지 -->
+    <div sec:authorize="hasRole('USER') and !hasRole('ADMIN')" class="alert alert-info">
+        <i class="bi bi-info-circle"></i>
+        <strong>일반 사용자 권한:</strong> 상품 목록을 조회할 수 있습니다. 상품 등록/수정/삭제는 관리자만 가능합니다.
+    </div>
+
+    <div sec:authorize="hasRole('ADMIN')" class="alert alert-success">
+        <i class="bi bi-shield-check"></i>
+        <strong>관리자 권한:</strong> 모든 상품 관리 기능을 사용할 수 있습니다.
+    </div>
+
+    <div sec:authorize="isAnonymous()" class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i>
+        더 많은 기능을 이용하려면 <a th:href="@{/login}" class="alert-link">로그인</a>하세요.
+    </div>
+
+    <!-- 상품 목록 테이블 -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th><i class="bi bi-hash"></i> Product ID</th>
+                <th><i class="bi bi-tag"></i> Name</th>
+                <th><i class="bi bi-award"></i> Brand</th>
+                <th><i class="bi bi-geo-alt"></i> Made In</th>
+                <th><i class="bi bi-currency-dollar"></i> Price</th>
+                <!-- Actions 컬럼은 ADMIN에게만 표시 -->
+                <th sec:authorize="hasRole('ADMIN')">
+                    <i class="bi bi-gear"></i> Actions
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product : ${listProducts}">
+                <td>
+                    <span class="badge bg-secondary" th:text="${product.id}">ID</span>
+                </td>
+                <td th:text="${product.name}" class="fw-bold">Name</td>
+                <td th:text="${product.brand}">Brand</td>
+                <td th:text="${product.madeIn}">Made in</td>
+                <td class="text-success fw-bold">
+                    ₩<span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">Price</span>
+                </td>
+
+                <!-- ADMIN만 Edit/Delete 버튼 표시 -->
+                <td sec:authorize="hasRole('ADMIN')">
+                    <div class="btn-group" role="group">
+                        <a class="btn btn-primary btn-sm" th:href="@{'/products/edit/' + ${product.id}}">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <a class="btn btn-danger btn-sm"
+                           th:href="@{'/products/delete/' + ${product.id}}"
+                           onclick="return confirm('정말로 이 상품을 삭제하시겠습니까?')">
+                            <i class="bi bi-trash"></i> Delete
+                        </a>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- 상품이 없을 때 -->
+            <tr th:if="${#lists.isEmpty(listProducts)}">
+                <td th:colspan="${#authorization.expression('hasRole(''ADMIN'')')} ? 6 : 5"
+                    class="text-center text-muted py-4">
+                    <i class="bi bi-inbox"></i> 등록된 상품이 없습니다.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- Bootstrap JS fragment 삽입 -->
+<div th:insert="~{common :: commonScript}"></div>
+</body>
+</html>
