@@ -7,37 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-//@Getter
-//@Setter
-//@ToString
-//@NoArgsConstructor
-//@Entity
-//@Table(name = "product")
-//public class Product {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
-//
-//    @Column(nullable = false)
-//    private String name;
-//
-//    @Column(nullable = false)
-//    private String brand;
-//
-//    @Column(nullable = false)
-//    private String madeIn;
-//
-//    @Column(nullable = false)
-//    private double price;
-//
-//    public Product(String name, String brand, String madeIn, double price) {
-//        this.name = name;
-//        this.brand = brand;
-//        this.madeIn = madeIn;
-//        this.price = price;
-//    }
-//}
-
 @Getter
 @Setter
 @ToString
